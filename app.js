@@ -3,7 +3,7 @@ const http = require("http");
 const loadApiKey = () => {
   const filePath = "secret.config";
   try {
-    apiKey = require(`./${filePath}`);
+    const { apiKey } = require(`./${filePath}`);
   } catch (error) {
     if (error.code == "MODULE_NOT_FOUND" || !apiKey) {
       const errorMsg = `Please create an api key file named ${filePath}.\nYou may use example_${filePath} as a reference.`;
