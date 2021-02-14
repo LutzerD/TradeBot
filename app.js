@@ -1,50 +1,13 @@
-const http = require("http");
+const { exchange } = require("./binance.js");
+console.log("butts", exchange);
 
-const loadApiKey = () => {
-  const filePath = "secret.config";
-  try {
-    const { apiKey } = require(`./${filePath}`);
-  } catch (error) {
-    if (error.code == "MODULE_NOT_FOUND" || !apiKey) {
-      const errorMsg = `Please create an api key file named ${filePath}.\nYou may use example_${filePath} as a reference.`;
+const historical = exchange.historical("BTCUSDT");
+historical.then(function (response) {
+  console.log("Resp:", response);
+  data = response.data;
+  console.log(data);
+});
 
-      console.error(errorMsg);
-    } else {
-      console.error(error);
-    }
-    process.exit();
-  }
-};
-
-loadApiKey();
-var api = require("./binance.js");
-
-const https = require("https");
-
-const formatRes = (res) => {
-  res.setEncoding("utf8");
-};
-
-const get = (endpoint) => {
-  let options = api.options(endpoint);
-  options.method = "GET";
-  console.log(`${options.method}:${options.hostname}${options.path}`);
-
-  const req = https.request(options, (res) => {
-    formatRes(res);
-    console.log(`statusCode: ${res.statusCode}`);
-
-    res.on("data", (d) => {
-      console.log("Data:", d);
-    });
-  });
-
-  req.on("error", (error) => {
-    console.error(error);
-  });
-
-  req.end();
-};
-
-// get(api.time);
-get(api.data("BTCUSDT", 10));
+historical.catch(function (error) {
+  console.log("error:", error);
+});

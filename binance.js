@@ -1,25 +1,71 @@
-const basePath = "/api/v3";
-const options = (path) => {
-  return {
-    hostname: "api.binance.com",
-    port: 443,
-    path: basePath + path,
-  };
-};
+const axios = require("axios");
+
+const basePath = "https://api.binance.com/api/v3";
 
 const apiPaths = {
   time: "/time",
+  historical: "/historicalTrades",
+  depth: "/depth",
 };
 
-const data = (symbol, limit) => {
-  let path = "/depth";
-  path += `?symbol=${symbol}`;
-  if (limit) {
-    path += `&limit=${limit}`;
+const loadApiKey = function () {
+  const filePath = "secret.config";
+
+  try {
+    const { apiKey } = require(`./${filePath}`);
+    console.log(this);
+    this.apiKey = apiKey;
+    console.log(this);
+
+    // this.apiKey = apiKey;
+  } catch (error) {
+    if (error.code == "MODULE_NOT_FOUND" || !apiKey) {
+      const errorMsg = `Please create an api key file named ${filePath}.\nYou may use example_${filePath} as a reference.`;
+
+      console.error(errorMsg);
+    } else {
+      console.error(error);
+    }
+    process.exit();
   }
-  return path;
 };
 
-exports.options = options;
-exports.time = "/time";
-exports.data = data;
+const depth = (symbol, limit) => {
+  /*
+  symbol	STRING	YES	
+  limit	  INT	    NO	  Default 500; max 1000.
+  */
+  let path = `${basePath}${apiPaths.depth}`;
+  return axios.get(path, { params: { symbol: symbol, limit: limit } });
+};
+
+const historical = function (symbol, limit, fromId) {
+  /*
+  symbol	STRING	YES	
+  limit	  INT	    NO	  Default 500; max 1000.
+  fromId	LONG	  NO	  TradeId to fetch from. Default gets most recent trades.
+ */
+  let path = `${basePath}${apiPaths.historical}`;
+
+  const options = {
+    params: {
+      symbol: symbol,
+      limit: limit,
+      fromId: fromId,
+    },
+    headers: {
+      "X-MBX-APIKEY": this.apiKey,
+    },
+  };
+
+  return axios.get(path, options);
+};
+
+const exchange = {
+  depth: depth,
+  historical: historical,
+  setup: loadApiKey,
+};
+
+exchange.setup();
+exports.exchange = exchange;
