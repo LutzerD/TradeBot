@@ -13,11 +13,7 @@ const loadApiKey = function () {
 
   try {
     const { apiKey } = require(`./${filePath}`);
-    console.log(this);
     this.apiKey = apiKey;
-    console.log(this);
-
-    // this.apiKey = apiKey;
   } catch (error) {
     if (error.code == "MODULE_NOT_FOUND" || !apiKey) {
       const errorMsg = `Please create an api key file named ${filePath}.\nYou may use example_${filePath} as a reference.`;
@@ -37,6 +33,16 @@ const depth = (symbol, limit) => {
   */
   let path = `${basePath}${apiPaths.depth}`;
   return axios.get(path, { params: { symbol: symbol, limit: limit } });
+};
+
+const time = function () {
+  /*
+  symbol	STRING	YES	
+  limit	  INT	    NO	  Default 500; max 1000.
+  */
+  let path = `${basePath}${apiPaths.time}`;
+  console.log("gettin", path);
+  return axios.get(path);
 };
 
 const historical = function (symbol, limit, fromId) {
@@ -65,6 +71,7 @@ const exchange = {
   depth: depth,
   historical: historical,
   setup: loadApiKey,
+  time: time,
 };
 
 exchange.setup();
