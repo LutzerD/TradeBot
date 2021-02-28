@@ -1,11 +1,12 @@
 const { exchange } = require("./binance.js");
 
-exports.apiHandler = apiHandler;
+exports.historicalData = historicalData;
 
-function apiHandler(req, res, q) {
-  const historical = exchange.historical("BTCUSDT");
+function historicalData(req, res, next, q) {
+  console.log("Got:", req);
+  const symbol = req.query.symbol || "BTCUSDT";
+  const historical = exchange.historical(symbol);
   historical.then(function (response) {
-    console.log("Resp:", response);
     response = response.data;
     const timeline = response.map((datum) => new Date(datum.time));
     const data = [
@@ -14,7 +15,7 @@ function apiHandler(req, res, q) {
         x: timeline,
       },
     ];
-    res.json(data);
+    res.json(data); //todo: support metadata, like e.g. send symbol, exchange/source, etc.
   });
 
   historical.catch(function (error) {
